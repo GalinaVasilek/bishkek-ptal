@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Bishkek_PTAL</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<style>
+#menu {
+background: #fff;
+position: absolute;
+z-index: 1;
+top: 16px;
+left: 16px;
+border-radius: 3px;
+width: 200px;
+border: 1px solid rgba(0, 0, 0, 0.4);
+font-family: 'Open Sans', sans-serif;
+}
+
+#menu a {
+font-size: 13px;
+color: #404040;
+display: block;
+margin: 0;
+padding: 0;
+padding: 10px;
+text-decoration: none;
+border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+#menu a:last-child {
+border: none;
+}
+
+#menu a:hover {
+background-color: #f8f8f8;
+color: #404040;
+}
+
+#menu a.active {
+background-color: #444;
+color: #ffffff;
+}
+
+#menu a.active:hover {
+background: #666;
+}
+
+#legend {
+	text-align: center;
+	display: block;
+	position: absolute;
+	width: 400px;
+	height: 32px;
+	line-height: 32px;
+	padding: 0;
+	bottom: 16px;
+	margin-left: -200px;
+	left: 50%;
+	z-index: 100;
+}
+
+#legend .item {
+	line-height: 32px;
+	text-align: center;
+	display: inline-block;
+	font-size: 15px;
+	font-family: sans-serif, Arial;
+	min-width: 32px;
+}
+
+#item-class-1 { background: #d7191c; }
+#item-class-2 { background: #834228; }
+#item-class-3 { background: #fec981; }
+#item-class-4 { background: #ffffc0; }
+#item-class-5 { background: #9ee618; }
+#item-class-6 { background: #7bc361; }
+#item-class-6a { background: #1a9641; }
+
+</style>
+
+<nav id="menu"></nav>
+<div id="legend">
+	<div class = 'item'><b>Worst</b></div>
+	<div class = 'item' id='item-class-1'>1</div>
+	<div class = 'item' id='item-class-2'>2</div>
+	<div class = 'item' id='item-class-3'>3</div>
+	<div class = 'item' id='item-class-4'>4</div>
+	<div class = 'item' id='item-class-5'>5</div>
+	<div class = 'item' id='item-class-6'>6</div>
+	<div class = 'item' id='item-class-6a'>6a</div>
+	<div class = 'item'><b>Best</b></div>
+</div>
+<div id="map"></div>
+
+<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoiZ2FsaW5hLXZhc2lsZWsiLCJhIjoiY2txNWJiMmhpMG5qbzJxbnRleTA3dGFpNyJ9.98gO1SZfSB6S-lSAC67-yg';
+var map = new mapboxgl.Map({
+container: 'map',
+style: 'mapbox://styles/galina-vasilek/ckq57xctp0hw517oigrqr5k2l',
+zoom: 11,
+center: [74.58, 42.88]
+});
+let nav = new mapboxgl.NavigationControl({
+	showCompass: true,
+	showZoom: true
+})
+
+map.addControl(nav, 'bottom-right');
+
+// Wait until the map has finished loading.
+map.on('load', function () {
+// Add a custom vector tileset source. This tileset contains
+// point features representing museums. Each feature contains
+// three properties. For example:
+// {
+//     alt_name: "Museo Arqueologico",
+//     name: "Museo Inka",
+//     tourism: "museum"
+// }
+
+//get style
+style = map.getStyle();
+console.log(style);
+
+
+});
+
+// After the last frame rendered before the map enters an "idle" state.
+map.on('idle', function () {
+// If these two layers have been added to the style,
+// add the toggle buttons.
+if (map.getLayer('stops-9hrp5c')) {
+// Enumerate ids of the layers.
+var toggleableLayerIds = [
+	{
+			id: 'stops-9hrp5c',
+			name: 'Stops',
+			visibility: 'visible'
+	},
+	{
+			id: 'data-driven-lines',
+			name: 'Transit routes lines',
+			visibility: 'visible'
+	},
+	{
+			id: 'data-driven-lines-labels',
+			name: 'Transit routes labels',
+			visibility: 'visible'
+	},
+	{
+			id: 'medicina2-82mtas',
+			name: 'Healthcare services',
+			visibility: 'none'
+	},
+	{
+			id: 'novostroiki',
+			name: 'New buildings areas',
+			visibility: 'visible'
+	},
+	{
+			id: 'commercial-c5qmrd',
+			name: 'Commercial buildings',
+			visibility: 'visible'
+	},
+	{
+			id: '3D-extrusions',
+			name: '3D extrusions',
+			visibility: 'visible'
+	},
+	{
+			id: 'stops-9hrp5c',
+			name: 'Stops',
+			visibility: 'visible'
+	},
+	{
+			id: 'choropleth-fill',
+			name: 'PTAL (existed network)',
+			visibility: 'visible'
+	}
+];
+// Set up the corresponding toggle button for each layer.
+for (var i = 0; i < toggleableLayerIds.length; i++) {
+var element = toggleableLayerIds[i];
+if (!document.getElementById(element.id)) {
+// Create a link.
+var link = document.createElement('a');
+	link.id = element.id;
+	link.href = '#';
+	link.textContent = element.name;
+	link.className = element.visibility === 'visible' ? 'active' : '';
+	map.setLayoutProperty(element.id, 'visibility', element.visibility);
+
+	// Show or hide layer when the toggle is clicked.
+	link.onclick = function (e) {
+		var clickedLayer = this.id;
+		//console.log(clickedLayer);
+		e.preventDefault();
+		e.stopPropagation();
+
+	var visibility = map.getLayoutProperty(
+		clickedLayer,
+		'visibility'
+	);
+
+// Toggle layer visibility by changing the layout object's visibility property.
+	if (visibility === 'visible') {
+		map.setLayoutProperty(
+			clickedLayer,
+			'visibility',
+			'none'
+		);
+		this.className = '';
+	} else {
+		this.className = 'active';
+		map.setLayoutProperty(
+			clickedLayer,
+			'visibility',
+			'visible'
+			);
+		}
+	};
+
+var layers = document.getElementById('menu');
+			layers.appendChild(link);
+			}
+		}
+	}
+});
+</script>
+
+</body>
+</html>
